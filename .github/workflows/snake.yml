@@ -19,7 +19,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
 
-      # 1. GENERATE THE 2D TACTICAL HUNTER
+      # 1. GENERATE THE 2D TACTICAL HUNTER (Puts it in 'dist' folder)
       - name: generate-snake
         uses: Platane/snk/svg-only@v3
         with:
@@ -27,14 +27,20 @@ jobs:
           outputs: |
             dist/github-contribution-grid-snake.svg?color_snake=#0047ab&color_dots=#0d1117,#003300,#006600,#009900,#00FF00
 
-      # 2. GENERATE THE 3D ISOMETRIC CITY
+      # 2. GENERATE THE 3D ISOMETRIC CITY (Puts it in 'profile-3d-contrib' folder)
       - name: generate-3d
         uses: yoshi389111/github-profile-3d-contrib@0.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
 
-      # 3. PUSH ASSETS TO THE OUTPUT NODE (STABLE VERSION)
+      # 3. MOVE 3D CITY INTO THE DELIVERY BOX (dist folder)
+      - name: move-assets
+        run: |
+          mkdir -p dist/profile-3d-contrib
+          cp -r profile-3d-contrib/* dist/profile-3d-contrib/
+
+      # 4. PUSH EVERYTHING TO THE OUTPUT BRANCH
       - name: push-to-output
         uses: crazy-max/ghaction-github-pages@v5
         with:
