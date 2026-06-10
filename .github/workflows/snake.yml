@@ -1,0 +1,44 @@
+name: generate animation
+
+on:
+  schedule:
+    - cron: "0 */12 * * *" 
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+
+jobs:
+  generate:
+    permissions: 
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      # 1. GENERATE THE 2D TACTICAL HUNTER
+      - name: generate-snake
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/github-contribution-grid-snake.svg?color_snake=#0047ab&color_dots=#0d1117,#003300,#006600,#009900,#00FF00
+
+      # 2. GENERATE THE 3D ISOMETRIC CITY
+      - name: generate-3d
+        uses: yoshi389111/github-profile-3d-contrib@0.7.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
+      # 3. PUSH ASSETS TO THE OUTPUT NODE (STABLE VERSION)
+      - name: push-to-output
+        uses: crazy-max/ghaction-github-pages@v5
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
